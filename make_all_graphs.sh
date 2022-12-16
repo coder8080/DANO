@@ -1,0 +1,3 @@
+python3 graph_maker_before.py
+python3 graph_maker_during.py
+python3 graph_maker_after.py
