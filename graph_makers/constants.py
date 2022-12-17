@@ -1,1 +1,1 @@
-max_value = 3500
+max_value = 350

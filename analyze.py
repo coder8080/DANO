@@ -83,6 +83,11 @@ def analyze(city):
     weeks_during = ceil(days_during / 7)
     weeks_after = ceil(days_after / 7)
 
+    print(first_day)
+    print(start_day)
+    print(end_day)
+    print(last_day)
+
     # print(weeks_before, weeks_during, weeks_after)
     return before_orders, during_orders, after_orders, weeks_before, weeks_during, weeks_after
 
@@ -124,7 +129,7 @@ def save(before_orders, during_orders, after_orders, weeks_before, weeks_during,
 
 def generate_files(city):
     result = analyze(city)
-    save(*result)
+    # save(*result)
 
 
 if __name__ == '__main__':
