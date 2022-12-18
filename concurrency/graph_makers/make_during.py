@@ -1,8 +1,8 @@
-from abstract import main as base
+from abstract import main as sup
 
 
 def main():
-    base('after')
+    sup('during')
 
 
 if __name__ == '__main__':

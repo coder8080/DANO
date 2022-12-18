@@ -5,35 +5,32 @@ from math import ceil
 # GENRES = ['triller', 'military', 'action', 'biographical', 'fairy_tale', 'science', 'fantasy', 'historical', 'drama', 'animation', 'cartoon', 'documentary', 'adventure',
 #           'fiction', 'childish', 'horror', 'humor', 'western', 'noir', 'detective', 'biography', 'criminal', 'tragicomedy', 'biopic', 'mystic', 'family', 'comedy', 'arthouse']
 
-days = ['понедельник', 'вторник', 'среда',
-        'четверг', 'пятница', 'суббота', 'воскресенье']
 
-
-def analyze(city):
-    def check(city_to_check):
-        return city == 'all' or city.lower() == city_to_check.lower()
+def analyze():
+    def increase(d: dict, key: str):
+        if key in d:
+            d[key] += 1
+        else:
+            d[key] = 1
 
     file = open('cinema_successful_orders.csv',
                 'rt', encoding='utf-8')
     reader = csv.DictReader(file, delimiter=';')
 
-    before_orders = [0] * 7
-    during_orders = [0] * 7
-    after_orders = [0] * 7
+    before_films = dict()
+    during_films = dict()
+    after_films = dict()
 
     min_day = (100500, 0, 0)
     max_day = (-100500, 0, 0)
 
     for line in reader:
-        cinema_city = line['cinema_city']
-        if not check(cinema_city):
-            continue
+        movie_name = line['movie_name']
         date_string = line['session_date']
         date = datetime.strptime(date_string, '%Y-%m-%d')
         month = date.month
         day = date.day
         year = date.year
-        weekday = date.weekday()
         type = 'none'
 
         cort = (year, month, day)
@@ -65,11 +62,11 @@ def analyze(city):
             elif month > 6:
                 type = 'after'
         if type == 'before':
-            before_orders[weekday] += 1
+            increase(before_films, movie_name)
         elif type == 'during':
-            during_orders[weekday] += 1
+            increase(during_films, movie_name)
         elif type == 'after':
-            after_orders[weekday] += 1
+            increase(after_films, movie_name)
         else:
             print('unknown type', month, day, year)
             raise ValueError('unknown type')
@@ -82,63 +79,70 @@ def analyze(city):
     days_before = (start_day - first_day).days
     days_during = (end_day - start_day).days
     days_after = (last_day - end_day).days
-    weeks_before = ceil(days_before / 7)
-    weeks_during = ceil(days_during / 7)
-    weeks_after = ceil(days_after / 7)
+    # weeks_before = ceil(days_before / 7)
+    # weeks_during = ceil(days_during / 7)
+    # weeks_after = ceil(days_after / 7)
 
-    print(first_day)
-    print(start_day)
-    print(end_day)
-    print(last_day)
+    # print(first_day)
+    # print(start_day)
+    # print(end_day)
+    # print(last_day)
+
+    c = 5
+
+    top_films_before = sorted(before_films.items(),
+                              key=lambda x: x[1], reverse=True)[:c]
+    top_films_during = sorted(during_films.items(),
+                              key=lambda x: x[1], reverse=True)[:c]
+    top_films_after = sorted(
+        after_films.items(), key=lambda x: x[1], reverse=True)[:c]
+    t = 40
+    print(len(list(filter(lambda x: x[1] > t, before_films.items()))))
+    print(len(list(filter(lambda x: x[1] > t, during_films.items()))))
+    print(len(list(filter(lambda x: x[1] > t, after_films.items()))))
 
     # print(weeks_before, weeks_during, weeks_after)
-    return before_orders, during_orders, after_orders, weeks_before, weeks_during, weeks_after
+    return top_films_before, top_films_during, top_films_after
 
 
-def save(before_orders, during_orders, after_orders, weeks_before, weeks_during, weeks_after, population):
+def save(top_films_before, top_films_during, top_films_after):
     # before
     output_before = open(
         './data_home/before.csv', mode='wt', encoding='utf-8')
     writer = csv.DictWriter(output_before, fieldnames=(
-        '', 'weekday', 'count',), delimiter=',')
+        '', 'movie', 'count',), delimiter=',')
     writer.writeheader()
-    for i, count in enumerate(before_orders):
-        writer.writerow(
-            {"": i, 'weekday': days[i], 'count': ceil((count / weeks_before) / population)})
+    for i, (movie, count) in enumerate(top_films_before):
+        writer.writerow({"": i, 'movie': movie, 'count': count})
     output_before.close()
 
     # during
     output_during = open(
         './data_home/during.csv', mode='wt', encoding='utf-8')
     writer = csv.DictWriter(output_during, fieldnames=(
-        '', 'weekday', 'count',), delimiter=',')
+        '', 'movie', 'count',), delimiter=',')
     writer.writeheader()
-    for i, count in enumerate(during_orders):
+    for i, (movie, count) in enumerate(top_films_during):
         writer.writerow(
-            {"": i, 'weekday': days[i], 'count': ceil((count / weeks_during) / population)})
+            {"": i, 'movie': movie, 'count': count})
     output_during.close()
 
     # after
     output_after = open('./data_home/after.csv',
                         mode='wt', encoding='utf-8')
     writer = csv.DictWriter(output_after, fieldnames=(
-        '', 'weekday', 'count'), delimiter=',')
+        '', 'movie', 'count'), delimiter=',')
     writer.writeheader()
-    for i, count in enumerate(after_orders):
+    for i, (movie, count) in enumerate(top_films_after):
         writer.writerow(
-            {"": i, 'weekday': days[i], 'count': ceil((count / weeks_after) / population)})
+            {"": i, 'movie': movie, 'count': count})
     output_after.close()
 
 
-def generate_files(city: str, population: int):
-    result = analyze(city)
-    save(*result, population)
+def generate_files():
+    # save(*analyze())
+    analyze()
 
 
 if __name__ == '__main__':
-    print('Введите город (all для всех городов)')
-    city = input()
-    print('Введите численность его населения (-1 если не нужно учитывать)')
-    inp = int(input())
-    population = inp / 1_000_000 if inp != -1 else 1
-    generate_files(city, population)
+    generate_files()
