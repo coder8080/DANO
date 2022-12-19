@@ -8,6 +8,9 @@ from math import ceil
 days = ['понедельник', 'вторник', 'среда',
         'четверг', 'пятница', 'суббота', 'воскресенье']
 
+population_dict = {'москва': 13010112,
+                   'санкт-петербург': 5601911, 'екатеринбург': 1544376, 'ростов-на-дону': 1142162, 'казань': 1308660}
+
 
 def analyze(city):
     def check(city_to_check):
@@ -130,15 +133,40 @@ def save(before_orders, during_orders, after_orders, weeks_before, weeks_during,
     output_after.close()
 
 
+def save_one_file(before_orders, during_orders, after_orders, weeks_before, weeks_during, weeks_after, population):
+    output_before = open(
+        './data_home/result.csv', mode='wt', encoding='utf-8')
+    writer = csv.DictWriter(output_before, fieldnames=(
+        '', 'weekday', 'count', 'Время'), delimiter=',')
+    writer.writeheader()
+    for i, count in enumerate(before_orders):
+        writer.writerow(
+            {"": i, 'weekday': days[i], 'count': ceil((count / weeks_before) / population), 'Время': 'before'})
+
+    for i, count in enumerate(during_orders):
+        writer.writerow(
+            {"": i, 'weekday': days[i], 'count': ceil((count / weeks_before) / population), 'Время': 'during'})
+
+    for i, count in enumerate(after_orders):
+        writer.writerow(
+            {"": i, 'weekday': days[i], 'count': ceil((count / weeks_before) / population), 'Время': 'after'})
+
+    output_before.close()
+
+
 def generate_files(city: str, population: int):
     result = analyze(city)
-    save(*result, population)
+    save_one_file(*result, population)
 
 
 if __name__ == '__main__':
     print('Введите город (all для всех городов)')
-    city = input()
-    print('Введите численность его населения (-1 если не нужно учитывать)')
-    inp = int(input())
-    population = inp / 1_000_000 if inp != -1 else 1
+    city = input().lower()
+    population = None
+    if city in population_dict:
+        population = population_dict[city] / 1_000_000
+    else:
+        print('Введите численность его населения (-1 если не нужно учитывать)')
+        inp = int(input())
+        population = inp / 1_000_000 if inp != -1 else 1
     generate_files(city, population)

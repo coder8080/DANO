@@ -69,22 +69,3 @@ if __name__ == '__main__':
     print('Введите город (all для всех городов)')
     city = input()
     analyze(city)
-
-    # current_timepoint = None
-    # current_prices = []
-    # result = []
-    # for i in range(len(source)):
-    #     timepoint, price = source[i]
-    #     if current_timepoint is None:
-    #         current_timepoint = timepoint
-    #         current_prices = [price]
-    #     elif current_timepoint != timepoint:
-    #         pr = current_prices[len(current_prices) // 2]
-    #         if pr < 0:
-    #             print(timepoint, pr)
-    #         result.append(
-    #             (current_timepoint, pr))
-    #         current_prices = [price]
-    #         current_timepoint = timepoint
-    #     elif current_timepoint == timepoint:
-    #         current_prices.append(price)

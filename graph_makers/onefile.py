@@ -8,22 +8,20 @@ params = {"ytick.color": "w",
           "axes.edgecolor": "w"}
 plt.rcParams.update(params)
 
+palette = ['#CBEDD5', '#97DECE', '#62B6B7']
 
-def main(name):
-    lim = None
-    if name == 'before':
-        lim = 250
-    elif name == 'during':
-        lim = 25
-    elif name == 'after':
-        lim = 50
-    plt.ylim(0, lim)
+
+def main():
     matplotlib.rcParams['savefig.transparent'] = True
-
-    dataset = sns.load_dataset(name, data_home="./data_home")
+    dataset = sns.load_dataset(
+        'result', data_home="./data_home")
     ax = sns.barplot(data=dataset, x="weekday",
-                     y="count")
+                     y="count", hue='Время', palette=palette)
     ax.set(xlabel='День недели', ylabel='Заказы в день на население')
     plt.xticks(rotation=20)
     plt.tight_layout()
-    plt.savefig(f'images/{name}.png')
+    plt.savefig(f'images/onefile.png')
+
+
+if __name__ == '__main__':
+    main()
